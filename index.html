@@ -293,7 +293,6 @@ table.inv-table .desc-sub{color:var(--muted);font-size:11px;margin-top:3px;line-
 
 <script>
 (function(){
-  const STORAGE_KEY = 'md-invoice-app-data';
   let state = null;
   let view = 'dashboard';
   let editingInvoiceId = null;
@@ -367,34 +366,62 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
     };
   }
 
+  function getSyncUrl(){
+    return localStorage.getItem('mdSyncUrl') || '';
+  }
+  function setSyncUrl(url){
+    localStorage.setItem('mdSyncUrl', url.trim());
+  }
+
+  function renderSyncSetup(existingError){
+    const app = document.getElementById('mdapp');
+    app.innerHTML = `
+      <div style="width:100%;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
+        <div style="max-width:480px;width:100%;background:#fff;border:1px solid var(--border);border-radius:12px;padding:28px;">
+          <h2 style="margin:0 0 6px;font-size:18px;color:var(--navy-900);">Connect to Google Sheet</h2>
+          <p style="margin:0 0 18px;font-size:13px;color:var(--muted);line-height:1.6;">
+            Paste the Google Apps Script Web App URL here. Everyone on the team should use this exact same URL so you're all reading and writing the same spreadsheet.
+          </p>
+          ${existingError ? `<div style="background:var(--red-bg);color:var(--red);padding:10px 12px;border-radius:8px;font-size:12.5px;margin-bottom:14px;">${esc(existingError)}</div>` : ''}
+          <input id="sync-url-input" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:14px;box-sizing:border-box;"/>
+          <button class="md-btn primary" style="width:100%;justify-content:center;" onclick="mdApp.connectSync()">Connect</button>
+        </div>
+      </div>
+    `;
+  }
+
   async function loadState(){
+    const url = getSyncUrl();
+    if(!url){ renderSyncSetup(); return; }
     try{
-      const res = await window.storage.get(STORAGE_KEY, false);
-      state = res && res.value ? JSON.parse(res.value) : defaultState();
+      const res = await fetch(url, {method:'GET'});
+      if(!res.ok) throw new Error('Server responded with ' + res.status);
+      const data = await res.json();
+      state = {
+        settings: Object.assign(defaultState().settings, data.settings || {}),
+        clients: data.clients || [],
+        invoices: data.invoices || [],
+        invoiceSeq: data.invoiceSeq || 1
+      };
     }catch(e){
-      state = defaultState();
-    }
-    // One-time migration: if settings were never customized (still the old placeholder text),
-    // upgrade them to the real company details without touching anything the user already edited.
-    if(state.settings && (state.settings.companyName === 'Your Company Name' || !state.settings.companyName)){
-      const fresh = defaultState().settings;
-      state.settings = fresh;
-      saveState();
-    } else if(state.settings && state.settings.companyName === 'Marine Delight Enterprises'){
-      // Earlier session set the name without the "Co., Ltd." suffix — bring it in line.
-      state.settings.companyName = 'Marine Delight Enterprises Co., Ltd.';
-      saveState();
+      renderSyncSetup('Could not load data from that URL (' + e.message + '). Double check the Web App URL and that it\'s deployed with "Anyone" access, then try again.');
+      return;
     }
     if(state.settings && !state.settings.signatoryName){
       state.settings.signatoryName = 'W.H.Naing';
-      saveState();
     }
     render();
   }
 
   async function saveState(){
+    const url = getSyncUrl();
+    if(!url) return;
     try{
-      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+      await fetch(url, {
+        method:'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(state)
+      });
     }catch(e){
       console.error('save failed', e);
     }
@@ -1177,6 +1204,16 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         </div>
       </div>
       <div class="md-card">
+        <div class="md-card-head"><h3>Sync</h3></div>
+        <div style="padding:16px;font-size:12.5px;color:var(--muted);">
+          Everyone using this app connects to the same Google Sheet, so you're all working from the same data. Currently connected to:
+          <div class="mono" style="word-break:break-all;background:var(--bg);padding:8px 10px;border-radius:6px;margin-top:8px;color:var(--navy-800);">${esc(getSyncUrl())}</div>
+        </div>
+        <div class="md-form-actions">
+          <button class="md-btn danger" onclick="mdApp.disconnectSync()">Disconnect</button>
+        </div>
+      </div>
+      <div class="md-card">
         <div class="md-card-head"><h3>Backup</h3></div>
         <div style="padding:16px;font-size:12.5px;color:var(--muted);">
           Download all your data (clients, invoices, and settings) as a JSON file — this is the one to use for restoring the app later. Or export Clients and Invoices as CSV or Excel for reporting and sharing.
@@ -1800,6 +1837,23 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         saveState();
         view = 'dashboard';
         render();
+      });
+    },
+    connectSync(){
+      const val = document.getElementById('sync-url-input').value.trim();
+      if(!val){ showWarning('Please paste the Web App URL.'); return; }
+      if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(val)){
+        showWarning('That doesn\'t look like a Google Apps Script Web App URL. It should look like https://script.google.com/macros/s/.../exec');
+        return;
+      }
+      setSyncUrl(val);
+      document.getElementById('mdapp').innerHTML = '<div class="md-loading">Connecting…</div>';
+      loadState();
+    },
+    disconnectSync(){
+      renderConfirmModal('Disconnect from this Google Sheet? You can reconnect (to this one or a different one) any time.', ()=>{
+        localStorage.removeItem('mdSyncUrl');
+        location.reload();
       });
     },
     closeConfirm(){
