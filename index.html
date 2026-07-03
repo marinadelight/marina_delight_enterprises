@@ -617,9 +617,10 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
       return isNaN(d.getTime()) ? null : d;
     };
     const total = state.clients.length;
-    const onProcess = state.clients.filter(c=>c.status==='On Process').length;
-    const success = state.clients.filter(c=>c.status==='Success').length;
-    const cancelled = state.clients.filter(c=>c.status==='Cancelled').length;
+    const statusOf = (c) => String(c.status||'').trim();
+    const onProcess = state.clients.filter(c=>statusOf(c)==='On Process').length;
+    const success = state.clients.filter(c=>statusOf(c)==='Success').length;
+    const cancelled = state.clients.filter(c=>statusOf(c)==='Cancelled').length;
     const counts = [onProcess, success, cancelled];
     const pcts = total ? (() => {
       const raw = counts.map(n => n/total*100);
@@ -627,7 +628,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
       let remaining = 100 - floored.reduce((a,b)=>a+b,0);
       const order = raw.map((v,i)=>({i, frac:v-floored[i]})).sort((a,b)=>b.frac-a.frac);
       const result = [...floored];
-      for(let k=0;k<remaining;k++){ result[order[k].i]++; }
+      for(let k=0;k<order.length && k<remaining;k++){ result[order[k].i]++; }
       return result;
     })() : [0,0,0];
     const pct = (idx) => total ? pcts[idx]+'% of total' : '—';
@@ -672,8 +673,8 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
 
     const todayD = new Date();
     const daysSince = (dateVal) => { const d = parseDateSafe(dateVal); return d ? Math.floor((todayD - d) / 86400000) : null; };
-    const onProcessWithDate = state.clients.filter(c=>c.status==='On Process' && parseDateSafe(c.createdAt));
-    const closedWithDates = state.clients.filter(c=>c.status!=='On Process' && parseDateSafe(c.createdAt) && parseDateSafe(c.statusChangedAt));
+    const onProcessWithDate = state.clients.filter(c=>statusOf(c)==='On Process' && parseDateSafe(c.createdAt));
+    const closedWithDates = state.clients.filter(c=>statusOf(c)!=='On Process' && parseDateSafe(c.createdAt) && parseDateSafe(c.statusChangedAt));
     const durations = [
       ...onProcessWithDate.map(c=>daysSince(c.createdAt)).filter(v=>v!==null),
       ...closedWithDates.map(c=>Math.max(0, Math.floor((parseDateSafe(c.statusChangedAt) - parseDateSafe(c.createdAt))/86400000)))
