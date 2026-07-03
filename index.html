@@ -609,6 +609,13 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
 
   // ---------------- DASHBOARD ----------------
   function renderDashboard(){
+    const parseDateSafe = (v) => {
+      if(!v) return null;
+      const s = String(v);
+      const isoDay = s.match(/^\d{4}-\d{2}-\d{2}/);
+      const d = isoDay ? new Date(isoDay[0]+'T00:00:00') : new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    };
     const total = state.clients.length;
     const onProcess = state.clients.filter(c=>c.status==='On Process').length;
     const success = state.clients.filter(c=>c.status==='Success').length;
@@ -653,8 +660,8 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
       monthOrder.push(key); monthCounts[key] = 0;
     }
     state.clients.forEach(c=>{
-      if(!c.createdAt) return;
-      const d = new Date(c.createdAt+'T00:00:00');
+      const d = parseDateSafe(c.createdAt);
+      if(!d) return;
       const key = d.toLocaleString('en-US',{month:'short'})+" '"+String(d.getFullYear()).slice(2);
       if(key in monthCounts) monthCounts[key]++;
     });
@@ -664,12 +671,12 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
     const convRate = closed ? Math.round(success/closed*100) : null;
 
     const todayD = new Date();
-    const daysSince = (dateStr) => Math.floor((todayD - new Date(dateStr+'T00:00:00')) / 86400000);
-    const onProcessWithDate = state.clients.filter(c=>c.status==='On Process' && c.createdAt);
-    const closedWithDates = state.clients.filter(c=>c.status!=='On Process' && c.createdAt && c.statusChangedAt);
+    const daysSince = (dateVal) => { const d = parseDateSafe(dateVal); return d ? Math.floor((todayD - d) / 86400000) : null; };
+    const onProcessWithDate = state.clients.filter(c=>c.status==='On Process' && parseDateSafe(c.createdAt));
+    const closedWithDates = state.clients.filter(c=>c.status!=='On Process' && parseDateSafe(c.createdAt) && parseDateSafe(c.statusChangedAt));
     const durations = [
-      ...onProcessWithDate.map(c=>daysSince(c.createdAt)),
-      ...closedWithDates.map(c=>Math.max(0, Math.floor((new Date(c.statusChangedAt+'T00:00:00') - new Date(c.createdAt+'T00:00:00'))/86400000)))
+      ...onProcessWithDate.map(c=>daysSince(c.createdAt)).filter(v=>v!==null),
+      ...closedWithDates.map(c=>Math.max(0, Math.floor((parseDateSafe(c.statusChangedAt) - parseDateSafe(c.createdAt))/86400000)))
     ];
     const avgDays = durations.length ? Math.round(durations.reduce((a,b)=>a+b,0)/durations.length) : null;
 
