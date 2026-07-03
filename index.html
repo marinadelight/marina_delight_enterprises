@@ -774,7 +774,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
               </td>
             </tr>`;
           }).join('')}
-        </tbody></table></div>` : `<div class="md-empty">No clients yet. Add one, or <a href="#" onclick="event.preventDefault();mdApp.loadSampleData();" style="color:var(--navy-700);font-weight:600;">load sample data</a> to try things out.</div>`}
+        </tbody></table></div>` : `<div class="md-empty">No clients yet. Click "+ New client" to add your first one.</div>`}
       </div>
     `;
   }
@@ -1206,8 +1206,11 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
       <div class="md-card">
         <div class="md-card-head"><h3>Sync</h3></div>
         <div style="padding:16px;font-size:12.5px;color:var(--muted);">
-          Everyone using this app connects to the same Google Sheet, so you're all working from the same data. Currently connected to:
-          <div class="mono" style="word-break:break-all;background:var(--bg);padding:8px 10px;border-radius:6px;margin-top:8px;color:var(--navy-800);">${esc(getSyncUrl())}</div>
+          Everyone using this app connects to the same Google Sheet, so you're all working from the same data.
+          <div style="display:flex;align-items:center;gap:7px;margin-top:10px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+            <span style="color:var(--green);font-weight:600;">Connected</span>
+          </div>
         </div>
         <div class="md-form-actions">
           <button class="md-btn danger" onclick="mdApp.disconnectSync()">Disconnect</button>
@@ -1222,16 +1225,6 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
           <button class="md-btn" onclick="mdApp.exportCSV()">Export CSV</button>
           <button class="md-btn" onclick="mdApp.exportExcel()">Export Excel</button>
           <button class="md-btn primary" onclick="mdApp.exportData()">Export data (JSON)</button>
-        </div>
-      </div>
-      <div class="md-card">
-        <div class="md-card-head"><h3>Sample data</h3></div>
-        <div style="padding:16px;font-size:12.5px;color:var(--muted);">
-          Load a few example candidates and invoices to try the app out, so you're not typing everything from scratch. You can clear it all again once you're ready for real data.
-        </div>
-        <div class="md-form-actions">
-          <button class="md-btn danger" onclick="mdApp.confirmClearAllData()">Clear all data</button>
-          <button class="md-btn primary" onclick="mdApp.loadSampleData()">Load sample data</button>
         </div>
       </div>
     `;
