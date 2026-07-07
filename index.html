@@ -866,8 +866,8 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         <div style="padding:0 16px 16px;">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin:6px 0;">History</div>
           ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map(h=>`
-            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;">
-              <span>${esc(h.round||'—')}</span><span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;">
+              <span style="flex:1;min-width:0;">${esc(h.round||'—')}</span><span style="flex:1;text-align:center;">${esc(h.status)}</span><span style="flex:1;text-align:right;color:var(--muted);">${esc(h.date)}</span>
             </div>
           `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
         </div>
@@ -971,8 +971,8 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         <div style="padding:0 16px 16px;">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:6px;">History</div>
           ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map(h=>`
-            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;">
-              <span>${esc(h.round||'—')}</span><span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;">
+              <span style="flex:1;min-width:0;">${esc(h.round||'—')}</span><span style="flex:1;text-align:center;">${esc(h.status)}</span><span style="flex:1;text-align:right;color:var(--muted);">${esc(h.date)}</span>
             </div>
           `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
         </div>
