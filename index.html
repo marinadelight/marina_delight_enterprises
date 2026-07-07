@@ -850,7 +850,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         </div>
       </div>
       <div class="md-card">
-        <div class="md-card-head"><h3>Interview process</h3></div>
+        <div class="md-card-head"><h3>Interview/Academic process</h3></div>
         <div class="md-form-grid">
           <div class="md-field"><label>Round</label><div style="padding-top:4px;font-size:13px;">${esc(c.interviewRound||'—')}</div></div>
           <div class="md-field"><label>Date</label><div style="padding-top:4px;font-size:13px;">${esc(c.interviewDate||'—')}</div></div>
@@ -868,10 +868,10 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         </div>
       </div>
       <div class="md-card">
-        <div class="md-card-head"><h3>Visa & permit process</h3></div>
+        <div class="md-card-head"><h3>Visa/Academic process</h3></div>
         <div class="md-form-grid">
-          <div class="md-field"><label>Visa & permit status</label><div style="padding-top:4px;font-size:13px;">
-            <span class="md-badge ${c.visaStatus==='Visa Approved'?'paid':c.visaStatus==='Rejected'?'overdue':c.visaStatus?'pending':''}"><span class="md-badge-dot"></span>${esc(c.visaStatus||'Not started')}</span>
+          <div class="md-field"><label>Visa/Permit & Academic process</label><div style="padding-top:4px;font-size:13px;">
+            <span class="md-badge ${c.visaStatus==='Visa Approved/Admission Accepted'?'paid':c.visaStatus==='Rejected'?'overdue':c.visaStatus?'pending':''}"><span class="md-badge-dot"></span>${esc(c.visaStatus||'Not started')}</span>
           </div></div>
           <div class="md-field"><label>Date</label><div style="padding-top:4px;font-size:13px;">${esc(c.visaDate||'—')}</div></div>
         </div>
@@ -950,7 +950,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         </div>
       </div>
       <div class="md-card">
-        <div class="md-card-head"><h3>Interview process</h3></div>
+        <div class="md-card-head"><h3>Interview/Academic process</h3></div>
         <div class="md-form-grid" style="padding:16px;">
           <div class="md-field"><label>Round</label><input id="cf-interview-round" value="${esc(c.interviewRound||'')}" placeholder="e.g. 1st Interview, 2nd Interview"/></div>
           <div class="md-field"><label>Date</label><input type="date" id="cf-interview-date" value="${esc(c.interviewDate||'')}"/></div>
@@ -973,14 +973,14 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         </div>
       </div>
       <div class="md-card">
-        <div class="md-card-head"><h3>Visa & permit process</h3></div>
+        <div class="md-card-head"><h3>Visa/Academic process</h3></div>
         <div class="md-form-grid" style="padding:16px;">
-          <div class="md-field"><label>Visa & permit status</label>
+          <div class="md-field"><label>Visa/Permit & Academic process</label>
             <select id="cf-visa-status">
               <option value="" ${!c.visaStatus?'selected':''}>—</option>
-              <option ${c.visaStatus==='Waiting Doc from Employer'?'selected':''}>Waiting Doc from Employer</option>
-              <option ${c.visaStatus==='Visa Applied'?'selected':''}>Visa Applied</option>
-              <option ${c.visaStatus==='Visa Approved'?'selected':''}>Visa Approved</option>
+              <option ${c.visaStatus==='Waiting Doc from Employer/University'?'selected':''}>Waiting Doc from Employer/University</option>
+              <option ${c.visaStatus==='Visa Applied/Admission Enrolled'?'selected':''}>Visa Applied/Admission Enrolled</option>
+              <option ${c.visaStatus==='Visa Approved/Admission Accepted'?'selected':''}>Visa Approved/Admission Accepted</option>
               <option ${c.visaStatus==='Rejected'?'selected':''}>Rejected</option>
             </select>
           </div>
