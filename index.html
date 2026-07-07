@@ -440,6 +440,11 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
     return {subtotal, discount, total};
   }
 
+  function totalsCurrency(inv){
+    const it = inv.items && inv.items[0];
+    return (it && (it.amountCurrency || it.unitPriceCurrency)) || inv.currency;
+  }
+
   function invoiceStatusInfo(inv){
     if(inv.status === 'Paid') return {cls:'paid', label:'Paid'};
     const today = new Date().toISOString().slice(0,10);
@@ -1218,9 +1223,9 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
   function totalsHtml(inv){
     const t = computeTotals(inv);
     return `
-      <div class="md-totals-row"><span>Subtotal</span><span class="mono">${fmtMoney(t.subtotal, inv.currency)}</span></div>
-      <div class="md-totals-row"><span>Discount (${inv.discountPercent||0}%)</span><span class="mono">− ${fmtMoney(t.discount, inv.currency)}</span></div>
-      <div class="md-totals-row total"><span>Total due</span><span class="mono">${fmtMoney(t.total, inv.currency)}</span></div>
+      <div class="md-totals-row"><span>Subtotal</span><span class="mono">${fmtMoney(t.subtotal, totalsCurrency(inv))}</span></div>
+      <div class="md-totals-row"><span>Discount (${inv.discountPercent||0}%)</span><span class="mono">− ${fmtMoney(t.discount, totalsCurrency(inv))}</span></div>
+      <div class="md-totals-row total"><span>Total due</span><span class="mono">${fmtMoney(t.total, totalsCurrency(inv))}</span></div>
     `;
   }
 
@@ -1293,9 +1298,9 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         </div>
         <div class="inv-totals-wrap">
           <div class="inv-totals">
-            <div class="inv-totals-row"><span>Subtotal</span><span class="mono">${fmtMoney(t.subtotal, inv.currency)}</span></div>
-            <div class="inv-totals-row"><span>Discount (${inv.discountPercent||0}%)</span><span class="mono">− ${fmtMoney(t.discount, inv.currency)}</span></div>
-            <div class="inv-total-final"><span class="l">Total due</span><span class="amt">${fmtMoney(t.total, inv.currency)}</span></div>
+            <div class="inv-totals-row"><span>Subtotal</span><span class="mono">${fmtMoney(t.subtotal, totalsCurrency(inv))}</span></div>
+            <div class="inv-totals-row"><span>Discount (${inv.discountPercent||0}%)</span><span class="mono">− ${fmtMoney(t.discount, totalsCurrency(inv))}</span></div>
+            <div class="inv-total-final"><span class="l">Total due</span><span class="amt">${fmtMoney(t.total, totalsCurrency(inv))}</span></div>
           </div>
         </div>
         <div style="padding:22px 22px 0 142px;">
@@ -1813,7 +1818,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
             const st = invoiceStatusInfo(inv);
             const t = computeTotals(inv).total;
             const fi = inv.items && inv.items[0] ? inv.items[0] : {};
-            return [inv.invoiceNo, inv.issueDate||'—', fi.stage||'—', st.label, fmtMoney(t, inv.currency)];
+            return [inv.invoiceNo, inv.issueDate||'—', fi.stage||'—', st.label, fmtMoney(t, totalsCurrency(inv))];
           });
           doc.autoTable({
             startY: y+4,
@@ -1869,7 +1874,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
       const invRows = state.invoices.map(inv=>{
         const fi = inv.items && inv.items[0] ? inv.items[0] : {};
         const t = computeTotals(inv).total;
-        return [inv.invoiceNo, clientName(inv.clientId), inv.issueDate, inv.paymentDate, inv.status, fi.stage, fi.category, fi.description, fi.payment, inv.currency, t, inv.transferMethod];
+        return [inv.invoiceNo, clientName(inv.clientId), inv.issueDate, inv.paymentDate, inv.status, fi.stage, fi.category, fi.description, fi.payment, totalsCurrency(inv), t, inv.transferMethod];
       });
       return {clientHeaders, clientRows, invHeaders, invRows};
     },
