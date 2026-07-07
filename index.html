@@ -403,6 +403,24 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         invoices: data.invoices || [],
         invoiceSeq: data.invoiceSeq || 1
       };
+      state.invoices.forEach(inv=>{
+        inv.issueDate = fmtDate(inv.issueDate);
+        inv.paymentDate = fmtDate(inv.paymentDate);
+      });
+      state.clients.forEach(c=>{
+        c.createdAt = fmtDate(c.createdAt);
+        c.statusChangedAt = fmtDate(c.statusChangedAt);
+        c.pccApplyDate = fmtDate(c.pccApplyDate);
+        c.pccReceivedDate = fmtDate(c.pccReceivedDate);
+        c.visaDate = fmtDate(c.visaDate);
+        c.interviewDate = fmtDate(c.interviewDate);
+        const vh = visaHistoryList(c);
+        vh.forEach(h=>{ h.date = fmtDate(h.date); });
+        c.visaHistory = vh;
+        const ih = interviewHistoryList(c);
+        ih.forEach(h=>{ h.date = fmtDate(h.date); });
+        c.interviewHistory = ih;
+      });
     }catch(e){
       renderSyncSetup('Could not load data from that URL (' + e.message + '). Double check the Web App URL and that it\'s deployed with "Anyone" access, then try again.');
       return;
@@ -448,7 +466,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
   function invoiceStatusInfo(inv){
     if(inv.status === 'Paid') return {cls:'paid', label:'Paid'};
     const today = new Date().toISOString().slice(0,10);
-    if(inv.paymentDate && inv.paymentDate < today) return {cls:'overdue', label:'Overdue'};
+    if(inv.paymentDate && fmtDate(inv.paymentDate) < today) return {cls:'overdue', label:'Overdue'};
     return {cls:'pending', label:'Pending'};
   }
 
@@ -476,6 +494,15 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
 
   function esc(s){
     return (s==null?'':String(s)).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function fmtDate(v){
+    if(!v) return '';
+    const s = String(v);
+    const isoDay = s.match(/^\d{4}-\d{2}-\d{2}/);
+    if(isoDay) return isoDay[0];
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? s : d.toISOString().slice(0,10);
   }
 
   function visaHistoryList(c){
@@ -1129,8 +1156,8 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
               <option ${inv.status==='Paid'?'selected':''}>Paid</option>
             </select>
           </div>
-          <div class="md-field"><label>Issue date *</label><input type="date" id="if-issue" value="${esc(inv.issueDate)}" required onchange="mdApp.onClientOrDateChange()"/></div>
-          <div class="md-field"><label>Payment due date *</label><input type="date" id="if-due" value="${esc(inv.paymentDate)}" required/></div>
+          <div class="md-field"><label>Issue date *</label><input type="date" id="if-issue" value="${esc(fmtDate(inv.issueDate))}" required onchange="mdApp.onClientOrDateChange()"/></div>
+          <div class="md-field"><label>Payment due date *</label><input type="date" id="if-due" value="${esc(fmtDate(inv.paymentDate))}" required/></div>
         </div>
         ${inv.clientId!=='__new__' ? `
         <div style="padding:0 18px 16px;">
@@ -1262,8 +1289,8 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
           </div>
         </div>
         <div class="inv-meta-row">
-          <div class="inv-meta"><div class="l">Issue date</div><div class="v">${esc(inv.issueDate||'—')}</div></div>
-          <div class="inv-meta"><div class="l">Payment date</div><div class="v">${esc(inv.paymentDate||'—')}</div></div>
+          <div class="inv-meta"><div class="l">Issue date</div><div class="v">${esc(fmtDate(inv.issueDate)||'—')}</div></div>
+          <div class="inv-meta"><div class="l">Payment date</div><div class="v">${esc(fmtDate(inv.paymentDate)||'—')}</div></div>
           <div class="inv-meta"><div class="l">Status</div><div class="v" style="color:${inv.status==='Paid'?'#1F8A5F':'#B7791B'};">${esc(status.label)}</div></div>
         </div>
         <div class="inv-parties">
@@ -1307,7 +1334,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
           <div style="position:relative;width:165px;height:165px;">
             <img src="${SEAL_DATA_URI}" alt="Official seal" style="width:100%;height:auto;display:block;"/>
             <div style="position:absolute;top:61.5%;left:50%;transform:translateX(-50%);font-size:9px;color:#1B3A63;white-space:nowrap;font-family:'Inter',sans-serif;">${esc(inv.invoiceNo)}</div>
-            <div style="position:absolute;top:69%;left:50%;transform:translateX(-50%);font-size:9px;color:#1B3A63;white-space:nowrap;font-family:'Inter',sans-serif;">${esc(inv.issueDate||'')}</div>
+            <div style="position:absolute;top:69%;left:50%;transform:translateX(-50%);font-size:9px;color:#1B3A63;white-space:nowrap;font-family:'Inter',sans-serif;">${esc(fmtDate(inv.issueDate))}</div>
           </div>
         </div>
         <div class="inv-transfer">
@@ -1818,7 +1845,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
             const st = invoiceStatusInfo(inv);
             const t = computeTotals(inv).total;
             const fi = inv.items && inv.items[0] ? inv.items[0] : {};
-            return [inv.invoiceNo, inv.issueDate||'—', fi.stage||'—', st.label, fmtMoney(t, totalsCurrency(inv))];
+            return [inv.invoiceNo, fmtDate(inv.issueDate)||'—', fi.stage||'—', st.label, fmtMoney(t, totalsCurrency(inv))];
           });
           doc.autoTable({
             startY: y+4,
@@ -1874,7 +1901,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
       const invRows = state.invoices.map(inv=>{
         const fi = inv.items && inv.items[0] ? inv.items[0] : {};
         const t = computeTotals(inv).total;
-        return [inv.invoiceNo, clientName(inv.clientId), inv.issueDate, inv.paymentDate, inv.status, fi.stage, fi.category, fi.description, fi.payment, totalsCurrency(inv), t, inv.transferMethod];
+        return [inv.invoiceNo, clientName(inv.clientId), fmtDate(inv.issueDate), fmtDate(inv.paymentDate), inv.status, fi.stage, fi.category, fi.description, fi.payment, totalsCurrency(inv), t, inv.transferMethod];
       });
       return {clientHeaders, clientRows, invHeaders, invRows};
     },
