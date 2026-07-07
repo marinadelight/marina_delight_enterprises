@@ -859,7 +859,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         <div class="md-form-grid">
           <div class="md-field"><label>Round</label><div style="padding-top:4px;font-size:13px;">${esc(c.interviewRound||'—')}</div></div>
           <div class="md-field"><label>Date</label><div style="padding-top:4px;font-size:13px;">${esc(c.interviewDate||'—')}</div></div>
-          <div class="md-field"><label>Interview status</label><div style="padding-top:4px;font-size:13px;">
+          <div class="md-field"><label>E/A history status</label><div style="padding-top:4px;font-size:13px;">
             <span class="md-badge ${c.interviewStatus==='Selected'?'paid':c.interviewStatus==='Rejected'?'overdue':c.interviewStatus?'pending':''}"><span class="md-badge-dot"></span>${esc(c.interviewStatus||'Not started')}</span>
           </div></div>
         </div>
@@ -959,7 +959,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         <div class="md-form-grid" style="padding:16px;">
           <div class="md-field"><label>Round</label><input id="cf-interview-round" value="${esc(c.interviewRound||'')}" placeholder="e.g. 1st Interview, 2nd Interview"/></div>
           <div class="md-field"><label>Date</label><input type="date" id="cf-interview-date" value="${esc(c.interviewDate||'')}"/></div>
-          <div class="md-field"><label>Interview status</label>
+          <div class="md-field"><label>E/A history status</label>
             <select id="cf-interview-status">
               <option value="" ${!c.interviewStatus?'selected':''}>—</option>
               <option ${c.interviewStatus==='Waiting'?'selected':''}>Waiting</option>
