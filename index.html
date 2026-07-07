@@ -892,11 +892,14 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         </div>
         <div style="padding:0 16px 16px;">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin:6px 0;">History</div>
-          ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map(h=>`
-            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;">
-              <span style="flex:1;min-width:0;">${esc(h.round||'—')}</span><span style="flex:1;text-align:center;">${esc(h.status)}</span><span style="flex:1;text-align:right;color:var(--muted);">${esc(h.date)}</span>
+          ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map((h,i)=>{
+            const origIdx = interviewHistoryList(c).length - 1 - i;
+            return `
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+              <span style="flex:1;min-width:0;">${esc(h.round||'—')}</span><span style="flex:1;text-align:center;">${esc(h.status)}</span><span style="width:90px;text-align:right;color:var(--muted);">${esc(h.date)}</span>
+              <button onclick="mdApp.editInterviewEntry('${c.id}', ${origIdx})" style="flex-shrink:0;background:none;border:none;color:var(--navy-700);font-size:11.5px;font-weight:600;cursor:pointer;padding:0;">Edit</button>
             </div>
-          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+          `;}).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
         </div>
       </div>
       <div class="md-card">
@@ -909,11 +912,14 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         </div>
         <div style="padding:0 16px 16px;">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin:6px 0;">History</div>
-          ${(visaHistoryList(c).length) ? visaHistoryList(c).slice().reverse().map(h=>`
-            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-              <span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+          ${(visaHistoryList(c).length) ? visaHistoryList(c).slice().reverse().map((h,i)=>{
+            const origIdx = visaHistoryList(c).length - 1 - i;
+            return `
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+              <span style="flex:1;">${esc(h.status)}</span><span style="width:90px;text-align:right;color:var(--muted);">${esc(h.date)}</span>
+              <button onclick="mdApp.editVisaEntry('${c.id}', ${origIdx})" style="flex-shrink:0;background:none;border:none;color:var(--navy-700);font-size:11.5px;font-weight:600;cursor:pointer;padding:0;">Edit</button>
             </div>
-          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+          `;}).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
         </div>
       </div>
       <div class="md-card">
@@ -997,11 +1003,14 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         </div>
         <div style="padding:0 16px 16px;">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:6px;">History</div>
-          ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map(h=>`
-            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;">
-              <span style="flex:1;min-width:0;">${esc(h.round||'—')}</span><span style="flex:1;text-align:center;">${esc(h.status)}</span><span style="flex:1;text-align:right;color:var(--muted);">${esc(h.date)}</span>
+          ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map((h,i)=>{
+            const origIdx = interviewHistoryList(c).length - 1 - i;
+            return `
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+              <span style="flex:1;min-width:0;">${esc(h.round||'—')}</span><span style="flex:1;text-align:center;">${esc(h.status)}</span><span style="width:90px;text-align:right;color:var(--muted);">${esc(h.date)}</span>
+              ${editingClientId ? `<button onclick="mdApp.editInterviewEntry('${editingClientId}', ${origIdx})" style="flex-shrink:0;background:none;border:none;color:var(--navy-700);font-size:11.5px;font-weight:600;cursor:pointer;padding:0;">Edit</button>` : ''}
             </div>
-          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+          `;}).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
         </div>
       </div>
       <div class="md-card">
@@ -1020,11 +1029,14 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
         </div>
         <div style="padding:0 16px 16px;">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:6px;">History</div>
-          ${(visaHistoryList(c).length) ? visaHistoryList(c).slice().reverse().map(h=>`
-            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-              <span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+          ${(visaHistoryList(c).length) ? visaHistoryList(c).slice().reverse().map((h,i)=>{
+            const origIdx = visaHistoryList(c).length - 1 - i;
+            return `
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+              <span style="flex:1;">${esc(h.status)}</span><span style="width:90px;text-align:right;color:var(--muted);">${esc(h.date)}</span>
+              ${editingClientId ? `<button onclick="mdApp.editVisaEntry('${editingClientId}', ${origIdx})" style="flex-shrink:0;background:none;border:none;color:var(--navy-700);font-size:11.5px;font-weight:600;cursor:pointer;padding:0;">Edit</button>` : ''}
             </div>
-          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+          `;}).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
         </div>
       </div>
       <div class="md-card">
@@ -1437,6 +1449,74 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
       <div class="md-modal-body">${esc(message)}</div>
       <div class="md-modal-actions">
         <button class="md-btn primary" onclick="mdApp.closeWarning()">OK</button>
+      </div>
+    </div>`;
+    document.body.appendChild(el);
+  }
+
+  function showVisaEntryModal(clientId, index){
+    const existing = document.getElementById('mdEntryModal');
+    if(existing) existing.remove();
+    const c = state.clients.find(x=>x.id===clientId);
+    const entry = visaHistoryList(c)[index] || {status:'', date:''};
+    const el = document.createElement('div');
+    el.className = 'md-modal-backdrop';
+    el.id = 'mdEntryModal';
+    el.innerHTML = `<div class="md-modal">
+      <div class="md-modal-head">Edit history entry</div>
+      <div class="md-modal-body">
+        <div class="md-form-grid" style="grid-template-columns:1fr;gap:12px;">
+          <div class="md-field"><label>Status</label>
+            <select id="eh-status">
+              <option ${entry.status==='Waiting Doc from Employer/University'?'selected':''}>Waiting Doc from Employer/University</option>
+              <option ${entry.status==='Visa Applied/Admission Enrolled'?'selected':''}>Visa Applied/Admission Enrolled</option>
+              <option ${entry.status==='Visa Approved/Admission Accepted'?'selected':''}>Visa Approved/Admission Accepted</option>
+              <option ${entry.status==='Rejected'?'selected':''}>Rejected</option>
+            </select>
+          </div>
+          <div class="md-field"><label>Date</label><input type="date" id="eh-date" value="${esc(entry.date||'')}"/></div>
+        </div>
+      </div>
+      <div class="md-modal-actions" style="justify-content:space-between;">
+        <button class="md-btn danger" onclick="mdApp.deleteVisaEntry('${clientId}', ${index})">Delete entry</button>
+        <div style="display:flex;gap:8px;">
+          <button class="md-btn" onclick="mdApp.closeEntryModal()">Cancel</button>
+          <button class="md-btn primary" onclick="mdApp.saveVisaEntry('${clientId}', ${index})">Save</button>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(el);
+  }
+
+  function showInterviewEntryModal(clientId, index){
+    const existing = document.getElementById('mdEntryModal');
+    if(existing) existing.remove();
+    const c = state.clients.find(x=>x.id===clientId);
+    const entry = interviewHistoryList(c)[index] || {round:'', status:'', date:''};
+    const el = document.createElement('div');
+    el.className = 'md-modal-backdrop';
+    el.id = 'mdEntryModal';
+    el.innerHTML = `<div class="md-modal">
+      <div class="md-modal-head">Edit history entry</div>
+      <div class="md-modal-body">
+        <div class="md-form-grid" style="grid-template-columns:1fr;gap:12px;">
+          <div class="md-field"><label>Round</label><input id="eh-round" value="${esc(entry.round||'')}"/></div>
+          <div class="md-field"><label>Status</label>
+            <select id="eh-status">
+              <option ${entry.status==='Waiting'?'selected':''}>Waiting</option>
+              <option ${entry.status==='Selected'?'selected':''}>Selected</option>
+              <option ${entry.status==='Rejected'?'selected':''}>Rejected</option>
+            </select>
+          </div>
+          <div class="md-field"><label>Date</label><input type="date" id="eh-date" value="${esc(entry.date||'')}"/></div>
+        </div>
+      </div>
+      <div class="md-modal-actions" style="justify-content:space-between;">
+        <button class="md-btn danger" onclick="mdApp.deleteInterviewEntry('${clientId}', ${index})">Delete entry</button>
+        <div style="display:flex;gap:8px;">
+          <button class="md-btn" onclick="mdApp.closeEntryModal()">Cancel</button>
+          <button class="md-btn primary" onclick="mdApp.saveInterviewEntry('${clientId}', ${index})">Save</button>
+        </div>
       </div>
     </div>`;
     document.body.appendChild(el);
@@ -2078,6 +2158,63 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
     closeWarning(){
       const el = document.getElementById('mdWarningModal');
       if(el) el.remove();
+    },
+    editVisaEntry(clientId, index){
+      showVisaEntryModal(clientId, index);
+    },
+    saveVisaEntry(clientId, index){
+      const c = state.clients.find(x=>x.id===clientId);
+      if(!c) return;
+      const h = visaHistoryList(c);
+      h[index] = {
+        status: document.getElementById('eh-status').value,
+        date: document.getElementById('eh-date').value
+      };
+      c.visaHistory = h;
+      saveState();
+      mdApp.closeEntryModal();
+      render();
+    },
+    deleteVisaEntry(clientId, index){
+      const c = state.clients.find(x=>x.id===clientId);
+      if(!c) return;
+      const h = visaHistoryList(c);
+      h.splice(index, 1);
+      c.visaHistory = h;
+      saveState();
+      mdApp.closeEntryModal();
+      render();
+    },
+    editInterviewEntry(clientId, index){
+      showInterviewEntryModal(clientId, index);
+    },
+    closeEntryModal(){
+      const el = document.getElementById('mdEntryModal');
+      if(el) el.remove();
+    },
+    saveInterviewEntry(clientId, index){
+      const c = state.clients.find(x=>x.id===clientId);
+      if(!c) return;
+      const h = interviewHistoryList(c);
+      h[index] = {
+        round: document.getElementById('eh-round').value.trim(),
+        status: document.getElementById('eh-status').value,
+        date: document.getElementById('eh-date').value
+      };
+      c.interviewHistory = h;
+      saveState();
+      mdApp.closeEntryModal();
+      render();
+    },
+    deleteInterviewEntry(clientId, index){
+      const c = state.clients.find(x=>x.id===clientId);
+      if(!c) return;
+      const h = interviewHistoryList(c);
+      h.splice(index, 1);
+      c.interviewHistory = h;
+      saveState();
+      mdApp.closeEntryModal();
+      render();
     },
     runConfirm(){
       if(confirmDeleteFn) confirmDeleteFn();
