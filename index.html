@@ -473,6 +473,24 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
     return (s==null?'':String(s)).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
 
+  function visaHistoryList(c){
+    let h = c && c.visaHistory;
+    if(!h) return [];
+    if(typeof h === 'string'){
+      try{ h = JSON.parse(h); }catch(e){ return []; }
+    }
+    return Array.isArray(h) ? h : [];
+  }
+
+  function interviewHistoryList(c){
+    let h = c && c.interviewHistory;
+    if(!h) return [];
+    if(typeof h === 'string'){
+      try{ h = JSON.parse(h); }catch(e){ return []; }
+    }
+    return Array.isArray(h) ? h : [];
+  }
+
   // ---------------- ICONS ----------------
   const ICONS = {
     dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
@@ -832,6 +850,53 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         </div>
       </div>
       <div class="md-card">
+        <div class="md-card-head"><h3>Interview process</h3></div>
+        <div class="md-form-grid">
+          <div class="md-field"><label>Round</label><div style="padding-top:4px;font-size:13px;">${esc(c.interviewRound||'—')}</div></div>
+          <div class="md-field"><label>Date</label><div style="padding-top:4px;font-size:13px;">${esc(c.interviewDate||'—')}</div></div>
+          <div class="md-field"><label>Interview status</label><div style="padding-top:4px;font-size:13px;">
+            <span class="md-badge ${c.interviewStatus==='Selected'?'paid':c.interviewStatus==='Rejected'?'overdue':c.interviewStatus?'pending':''}"><span class="md-badge-dot"></span>${esc(c.interviewStatus||'Not started')}</span>
+          </div></div>
+        </div>
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin:6px 0;">History</div>
+          ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map(h=>`
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;">
+              <span>${esc(h.round||'—')}</span><span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+            </div>
+          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+        </div>
+      </div>
+      <div class="md-card">
+        <div class="md-card-head"><h3>Visa & permit process</h3></div>
+        <div class="md-form-grid">
+          <div class="md-field"><label>Visa & permit status</label><div style="padding-top:4px;font-size:13px;">
+            <span class="md-badge ${c.visaStatus==='Visa Approved'?'paid':c.visaStatus==='Rejected'?'overdue':c.visaStatus?'pending':''}"><span class="md-badge-dot"></span>${esc(c.visaStatus||'Not started')}</span>
+          </div></div>
+          <div class="md-field"><label>Date</label><div style="padding-top:4px;font-size:13px;">${esc(c.visaDate||'—')}</div></div>
+        </div>
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin:6px 0;">History</div>
+          ${(visaHistoryList(c).length) ? visaHistoryList(c).slice().reverse().map(h=>`
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+              <span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+            </div>
+          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+        </div>
+      </div>
+      <div class="md-card">
+        <div class="md-card-head"><h3>Police clearance certificate</h3></div>
+        <div class="md-form-grid">
+          <div class="md-field"><label>Apply country</label><div style="padding-top:4px;font-size:13px;">${esc(c.pccCountry||'—')}</div></div>
+          <div class="md-field"><label>Application method</label><div style="padding-top:4px;font-size:13px;">${esc(c.pccMethod||'—')}</div></div>
+          <div class="md-field"><label>Apply date</label><div style="padding-top:4px;font-size:13px;">${esc(c.pccApplyDate||'—')}</div></div>
+          <div class="md-field"><label>Received date</label><div style="padding-top:4px;font-size:13px;">${esc(c.pccReceivedDate||'—')}</div></div>
+          <div class="md-field"><label>PCC status</label><div style="padding-top:4px;font-size:13px;">
+            <span class="md-badge ${c.pccStatus==='Received'?'paid':c.pccStatus?'pending':''}"><span class="md-badge-dot"></span>${esc(c.pccStatus||'Not started')}</span>
+          </div></div>
+        </div>
+      </div>
+      <div class="md-card">
         <div class="md-card-head"><h3>Invoices (${clientInvoices.length})</h3></div>
         ${clientInvoices.length ? `<table class="md-table"><thead><tr><th>Invoice</th><th>Stage</th><th>Category</th></tr></thead><tbody>
           ${clientInvoices.map(inv=>{
@@ -848,7 +913,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
   }
 
   function renderClientForm(){
-    const c = editingClientId ? state.clients.find(x=>x.id===editingClientId) : {name:'',address:'',phone:'',email:'',nationality:'',destinationCountry:'',appliedPosition:'',status:'On Process',emergencyName:'',emergencyRelationship:'',emergencyMobile:'',emergencyWhatsapp:'',emergencyEmail:'',emergencyAddress:''};
+    const c = editingClientId ? state.clients.find(x=>x.id===editingClientId) : {name:'',address:'',phone:'',email:'',nationality:'',destinationCountry:'',appliedPosition:'',status:'On Process',emergencyName:'',emergencyRelationship:'',emergencyMobile:'',emergencyWhatsapp:'',emergencyEmail:'',emergencyAddress:'',interviewRound:'',interviewDate:'',interviewStatus:'',interviewHistory:[],visaStatus:'',visaDate:'',visaHistory:[],pccCountry:'',pccMethod:'',pccApplyDate:'',pccReceivedDate:'',pccStatus:''};
     return `
       <div class="md-topbar">
         <div><div class="md-title">${editingClientId?'Edit client':'Add client'}</div></div>
@@ -882,6 +947,80 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
           <div class="md-field"><label>WhatsApp number *</label><input type="tel" id="cf-ec-whatsapp" value="${esc(c.emergencyWhatsapp||'')}" placeholder="+00 000 000000" required/></div>
           <div class="md-field"><label>Email *</label><input type="email" id="cf-ec-email" value="${esc(c.emergencyEmail||'')}" placeholder="name@example.com" required/></div>
           <div class="md-field"><label>Address *</label><input id="cf-ec-address" value="${esc(c.emergencyAddress||'')}" placeholder="City, Country" required/></div>
+        </div>
+      </div>
+      <div class="md-card">
+        <div class="md-card-head"><h3>Interview process</h3></div>
+        <div class="md-form-grid" style="padding:16px;">
+          <div class="md-field"><label>Round</label><input id="cf-interview-round" value="${esc(c.interviewRound||'')}" placeholder="e.g. 1st Interview, 2nd Interview"/></div>
+          <div class="md-field"><label>Date</label><input type="date" id="cf-interview-date" value="${esc(c.interviewDate||'')}"/></div>
+          <div class="md-field"><label>Interview status</label>
+            <select id="cf-interview-status">
+              <option value="" ${!c.interviewStatus?'selected':''}>—</option>
+              <option ${c.interviewStatus==='Waiting'?'selected':''}>Waiting</option>
+              <option ${c.interviewStatus==='Selected'?'selected':''}>Selected</option>
+              <option ${c.interviewStatus==='Rejected'?'selected':''}>Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:6px;">History</div>
+          ${(interviewHistoryList(c).length) ? interviewHistoryList(c).slice().reverse().map(h=>`
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;">
+              <span>${esc(h.round||'—')}</span><span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+            </div>
+          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+        </div>
+      </div>
+      <div class="md-card">
+        <div class="md-card-head"><h3>Visa & permit process</h3></div>
+        <div class="md-form-grid" style="padding:16px;">
+          <div class="md-field"><label>Visa & permit status</label>
+            <select id="cf-visa-status">
+              <option value="" ${!c.visaStatus?'selected':''}>—</option>
+              <option ${c.visaStatus==='Waiting Doc from Employer'?'selected':''}>Waiting Doc from Employer</option>
+              <option ${c.visaStatus==='Visa Applied'?'selected':''}>Visa Applied</option>
+              <option ${c.visaStatus==='Visa Approved'?'selected':''}>Visa Approved</option>
+              <option ${c.visaStatus==='Rejected'?'selected':''}>Rejected</option>
+            </select>
+          </div>
+          <div class="md-field"><label>Date</label><input type="date" id="cf-visa-date" value="${esc(c.visaDate||'')}"/></div>
+        </div>
+        <div style="padding:0 16px 16px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:6px;">History</div>
+          ${(visaHistoryList(c).length) ? visaHistoryList(c).slice().reverse().map(h=>`
+            <div style="font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+              <span>${esc(h.status)}</span><span style="color:var(--muted);">${esc(h.date)}</span>
+            </div>
+          `).join('') : `<div style="font-size:12px;color:var(--muted);">No status changes yet.</div>`}
+        </div>
+      </div>
+      <div class="md-card">
+        <div class="md-card-head"><h3>Police clearance certificate</h3></div>
+        <div class="md-form-grid" style="padding:16px;">
+          <div class="md-field"><label>Apply country</label>
+            <select id="cf-pcc-country">
+              <option value="" ${!c.pccCountry?'selected':''}>—</option>
+              <option ${c.pccCountry==='Myanmar'?'selected':''}>Myanmar</option>
+              <option ${c.pccCountry==='Thailand'?'selected':''}>Thailand</option>
+            </select>
+          </div>
+          <div class="md-field"><label>Application method</label>
+            <select id="cf-pcc-method">
+              <option value="" ${!c.pccMethod?'selected':''}>—</option>
+              <option value="Self" ${c.pccMethod==='Self'?'selected':''}>Doing themselves</option>
+              <option value="Go to NPT" ${c.pccMethod==='Go to NPT'?'selected':''}>Go to NPT</option>
+            </select>
+          </div>
+          <div class="md-field"><label>Apply date</label><input type="date" id="cf-pcc-apply" value="${esc(c.pccApplyDate||'')}"/></div>
+          <div class="md-field"><label>Received date</label><input type="date" id="cf-pcc-received" value="${esc(c.pccReceivedDate||'')}"/></div>
+          <div class="md-field"><label>PCC status</label>
+            <select id="cf-pcc-status">
+              <option value="" ${!c.pccStatus?'selected':''}>—</option>
+              <option ${c.pccStatus==='On Process'?'selected':''}>On Process</option>
+              <option ${c.pccStatus==='Received'?'selected':''}>Received</option>
+            </select>
+          </div>
         </div>
         <div class="md-form-actions">
           <button class="md-btn" onclick="mdApp.nav('clients')">Cancel</button>
@@ -1317,18 +1456,60 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿'};
         emergencyMobile,
         emergencyWhatsapp,
         emergencyEmail,
-        emergencyAddress
+        emergencyAddress,
+        pccCountry: document.getElementById('cf-pcc-country').value,
+        pccMethod: document.getElementById('cf-pcc-method').value,
+        pccApplyDate: document.getElementById('cf-pcc-apply').value,
+        pccReceivedDate: document.getElementById('cf-pcc-received').value,
+        pccStatus: document.getElementById('cf-pcc-status').value,
+        visaDate: document.getElementById('cf-visa-date').value,
+        visaStatus: document.getElementById('cf-visa-status').value,
+        interviewRound: document.getElementById('cf-interview-round').value.trim(),
+        interviewDate: document.getElementById('cf-interview-date').value,
+        interviewStatus: document.getElementById('cf-interview-status').value
       };
       if(editingClientId){
         const c = state.clients.find(c=>c.id===editingClientId);
         if(c.status !== data.status){
           data.statusChangedAt = new Date().toISOString().slice(0,10);
         }
+        const priorHistory = visaHistoryList(c);
+        if(data.visaStatus){
+          const entryDate = data.visaDate || new Date().toISOString().slice(0,10);
+          if(c.visaStatus !== data.visaStatus){
+            data.visaHistory = [...priorHistory, {status: data.visaStatus, date: entryDate}];
+          } else if(priorHistory.length && priorHistory[priorHistory.length-1].date !== entryDate){
+            data.visaHistory = [...priorHistory.slice(0,-1), {status: data.visaStatus, date: entryDate}];
+          } else {
+            data.visaHistory = priorHistory;
+          }
+        } else {
+          data.visaHistory = priorHistory;
+        }
+        const priorInterviewHistory = interviewHistoryList(c);
+        if(data.interviewStatus){
+          const ientryDate = data.interviewDate || new Date().toISOString().slice(0,10);
+          if(c.interviewStatus !== data.interviewStatus || c.interviewRound !== data.interviewRound){
+            data.interviewHistory = [...priorInterviewHistory, {round: data.interviewRound, status: data.interviewStatus, date: ientryDate}];
+          } else if(priorInterviewHistory.length && priorInterviewHistory[priorInterviewHistory.length-1].date !== ientryDate){
+            data.interviewHistory = [...priorInterviewHistory.slice(0,-1), {round: data.interviewRound, status: data.interviewStatus, date: ientryDate}];
+          } else {
+            data.interviewHistory = priorInterviewHistory;
+          }
+        } else {
+          data.interviewHistory = priorInterviewHistory;
+        }
         Object.assign(c, data);
         saveState();
         if(viewingClientId===editingClientId){ view='client-detail'; render(); return; }
       } else {
         const nowStr = new Date().toISOString().slice(0,10);
+        if(data.visaStatus){
+          data.visaHistory = [{status: data.visaStatus, date: data.visaDate || nowStr}];
+        }
+        if(data.interviewStatus){
+          data.interviewHistory = [{round: data.interviewRound, status: data.interviewStatus, date: data.interviewDate || nowStr}];
+        }
         state.clients.push({id:uid(), createdAt:nowStr, statusChangedAt:nowStr, ...data});
         saveState();
       }
