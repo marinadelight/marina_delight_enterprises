@@ -335,7 +335,7 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
   }
   function paymentDigit(paymentStr){
     const m = /^(\d+)/.exec(paymentStr||'');
-    return m ? Number(m[1]) : 1;
+    return m ? Number(m[1]) : null;
   }
   function formatPaymentOrdinal(paymentStr){
     const m = /^(\d+)(st|nd|rd|th)\b(.*)$/i.exec(paymentStr||'');
@@ -487,7 +487,15 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
     const year = isNaN(d.getTime()) ? new Date().getFullYear() : d.getFullYear();
     const month = isNaN(d.getTime()) ? (new Date().getMonth()+1) : (d.getMonth()+1);
     const monthStr = String(month).padStart(3,'0');
-    const paymentNo = paymentNumberOverride || (state.invoices.filter(i=> i.clientId===clientId && i.id!==excludeInvoiceId).length + 1);
+    let paymentNo = paymentNumberOverride;
+    if(!paymentNo){
+      let maxCp = 0;
+      state.invoices.filter(i=> i.clientId===clientId && i.id!==excludeInvoiceId).forEach(i=>{
+        const m = /\/CP(\d+)$/.exec(i.invoiceNo||'');
+        if(m){ const n = Number(m[1]); if(n>maxCp) maxCp = n; }
+      });
+      paymentNo = maxCp + 1;
+    }
     const prefix = (state.settings.invoicePrefix || 'MDE').toUpperCase();
     return `${prefix}-${year}-${monthStr}-${initials}/CP${paymentNo}`;
   }
@@ -1156,9 +1164,11 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
       <div class="md-card">
         <div class="md-form-grid">
           <div class="md-field">
-            <label>Invoice number (auto)</label>
+            <label id="if-invno-label">Invoice number ${inv.items[0] && inv.items[0].descBlank ? '(type manually)' : '(auto)'}</label>
             <div style="display:flex;gap:6px;">
-              <input id="if-invno" value="${esc(inv.invoiceNo)}" readonly style="flex:1;background:#F0F1F4;color:var(--muted);cursor:not-allowed;"/>
+              ${inv.items[0] && inv.items[0].descBlank
+                ? `<input id="if-invno" value="${esc(inv.invoiceNo)}" placeholder="e.g. MDE-2026-007-ABC/CP2" style="flex:1;"/>`
+                : `<input id="if-invno" value="${esc(inv.invoiceNo)}" readonly style="flex:1;background:#F0F1F4;color:var(--muted);cursor:not-allowed;"/>`}
               <button type="button" class="md-btn small" title="Regenerate from candidate, date & prefix" onclick="mdApp.regenerateInvoiceNo()">↻</button>
             </div>
           </div>
@@ -1689,6 +1699,25 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
       document.getElementById('if-items-body').innerHTML = window.__mdDraft.items.map((it,idx2)=>itemRow(it,idx2,window.__mdDraft.currency)).join('');
       document.getElementById('if-totals').innerHTML = totalsHtml(window.__mdDraft);
     },
+    syncInvoiceNoLockState(){
+      const items = window.__mdDraft.items;
+      const isBlank = items[0] && items[0].descBlank;
+      const label = document.getElementById('if-invno-label');
+      const input = document.getElementById('if-invno');
+      if(!label || !input) return;
+      label.textContent = isBlank ? 'Invoice number (type manually)' : 'Invoice number (auto)';
+      if(isBlank){
+        input.readOnly = false;
+        input.style.background = '#fff';
+        input.style.color = '';
+        input.style.cursor = 'text';
+      } else {
+        input.readOnly = true;
+        input.style.background = '#F0F1F4';
+        input.style.color = 'var(--muted)';
+        input.style.cursor = 'not-allowed';
+      }
+    },
     onDescriptionSelect(idx, value){
       const items = window.__mdDraft.items;
       if(value === '__blank__'){
@@ -1706,7 +1735,10 @@ const CURRENCIES = {MMK:'Ks', USD:'$', EUR:'€', THB:'฿', SGD:'S$'};
       }
       document.getElementById('if-items-body').innerHTML = items.map((it,i)=>itemRow(it,i,window.__mdDraft.currency)).join('');
       document.getElementById('if-totals').innerHTML = totalsHtml(window.__mdDraft);
-      if(idx===0 && !editingInvoiceId) mdApp.regenerateInvoiceNo();
+      if(idx===0){
+        mdApp.syncInvoiceNoLockState();
+        if(!editingInvoiceId) mdApp.regenerateInvoiceNo();
+      }
     },
     updateItem(idx, field, value){
       const items = window.__mdDraft.items;
